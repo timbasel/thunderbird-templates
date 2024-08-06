@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "package": "mkdir -p release && zip release/templates_${npm_package_version}.xpi icons/*.png dist/* manifest.json"
+    "build": "vite build && pnpm run package",
+    "package": "mkdir -p release && zip release/templates_${npm_package_version}.xpi icons/* dist/* _locales/en/messages.json manifest.json"
   },
   "devDependencies": {
     "@types/node": "^22.1.0",

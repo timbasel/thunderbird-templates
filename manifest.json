@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Templates",
-  "description": "Thunderbird plugin to create per-account HTML templates for your emails",
+  "description": "__MSG_extensionDescription__",
   "version": "1.0.0",
   "author": "Tim Basel",
   "default_locale": "en",
@@ -12,10 +12,10 @@
     }
   },
   "icons": {
-    "16": "icons/icon.svg",
-    "32": "icons/icon.svg",
-    "64": "icons/icon.svg",
-    "96": "icons/icon.svg"
+    "16": "icons/logo.svg",
+    "32": "icons/logo.svg",
+    "64": "icons/logo.svg",
+    "96": "icons/logo.svg"
   },
   "background": {
     "scripts": [
