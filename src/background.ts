@@ -1,5 +1,4 @@
 const originalBody: Record<number, any> = {};
-
 const getKey = (name?: string) => `templates_${name ?? "default"}`;
 
 async function setTemplate(tab: browser.tabs.Tab) {
@@ -10,7 +9,9 @@ async function setTemplate(tab: browser.tabs.Tab) {
     compose.identityId === undefined ||
     compose.type === "draft" ||
     compose.type === "redirect" ||
-    (compose.type === "new" && compose.relatedMessageId !== null)
+    (compose.type === "new" &&
+      compose.relatedMessageId !== undefined &&
+      compose.relatedMessageId !== null)
   ) {
     return;
   }
@@ -24,8 +25,7 @@ async function setTemplate(tab: browser.tabs.Tab) {
     template = (await browser.storage.local.get(defaultKey))[defaultKey] ?? "";
   }
 
-  if (compose.body === undefined) return;
-  let body = originalBody[tab.id] ?? compose.body.split("<body>").pop()?.split("</body>")[0] ?? "";
+  let body = originalBody[tab.id] ?? compose.body?.split("<body>").pop()?.split("</body>")[0] ?? "";
   if (originalBody[tab.id] === undefined) originalBody[tab.id] = body;
 
   if (template.length > 0) {
