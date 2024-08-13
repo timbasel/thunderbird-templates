@@ -1,33 +1,42 @@
-const tabTemplateHistory: Record<number, any> = {};
+const templateHistory: Record<number, any> = {};
+
+const getKey = (name?: string) => `templates_${name ?? "default"}`;
 
 async function setTemplate(tab: browser.tabs.Tab) {
   if (tab.id === undefined) return;
-  const details = await browser.compose.getComposeDetails(tab.id);
+  const compose = await browser.compose.getComposeDetails(tab.id);
 
   if (
-    details.identityId === undefined ||
-    details.type === "draft" ||
-    details.type === "redirect" ||
-    (details.type === "new" && details.relatedMessageId !== null)
+    compose.identityId === undefined ||
+    compose.type === "draft" ||
+    compose.type === "redirect" ||
+    (compose.type === "new" && compose.relatedMessageId !== null)
   ) {
     return;
   }
 
-  const identity = await browser.identities.get(details.identityId);
+  const identity = await browser.identities.get(compose.identityId);
 
-  const key = `templates_${identity?.accountId ?? "default"}`;
-  let body: string = (await browser.storage.local.get(key))[key];
-
-  if (details.body) {
-    const oldMessages = details.body.split("<body>").pop()?.split("</body>")[0] ?? "";
-
-    var index = body.lastIndexOf("</body>");
-    body = body.substring(0, index) + oldMessages + body.substring(index);
+  const key = getKey(identity?.accountId);
+  let template: string = (await browser.storage.local.get(key))[key] ?? "";
+  if (template === "") {
+    const defaultKey = getKey("default");
+    template = (await browser.storage.local.get(defaultKey))[defaultKey] ?? "";
   }
 
-  body = body.replace("<br><br></body></html>", "<br></body></html");
+  if (compose.body === undefined) return;
+  let body = compose.body.split("<body>").pop()?.split("</body>")[0] ?? "";
+
+  if (template.length > 0) {
+    if (body.indexOf(`<br><pre class="moz-`) === 0) {
+      body = "<br>" + body;
+    }
+    let index = template.lastIndexOf("</body>");
+    body = template.substring(0, index) + body + template.substring(index);
+  }
 
   browser.compose.setComposeDetails(tab.id, { body });
+  templateHistory[tab.id] = template;
 }
 
 browser.tabs.onCreated.addListener(async (tab) => {

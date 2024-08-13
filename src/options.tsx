@@ -9,6 +9,7 @@ import {
   createSignal,
   For,
   onMount,
+  Show,
 } from "solid-js";
 import { twMerge } from "tailwind-merge";
 
@@ -21,6 +22,11 @@ export const Section: Component<ComponentProps<"section">> = (props) => {
 };
 
 const Options: Component = () => {
+  const [saved, setSaved] = createSignal(false);
+  createEffect(() => {
+    if (saved()) setTimeout(() => setSaved(false), 2500);
+  });
+
   const [accounts] = createResource(async () => await browser.accounts.list(), {
     initialValue: [],
   });
@@ -32,6 +38,7 @@ const Options: Component = () => {
   onMount(() => {
     createEffect(async () => {
       templateRef.value = (await browser.storage.local.get(key()))[key()] ?? "";
+      setSaved(false);
     });
   });
 
@@ -39,7 +46,7 @@ const Options: Component = () => {
     await browser.storage.local.set({
       [key()]: templateRef.value,
     });
-    alert("Saved");
+    setSaved(true);
   };
 
   return (
@@ -75,6 +82,9 @@ const Options: Component = () => {
           >
             Save
           </button>
+          <Show when={saved()}>
+            <div class="text-center">Saved</div>
+          </Show>
         </Section>
       </div>
     </div>
