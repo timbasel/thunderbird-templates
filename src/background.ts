@@ -1,4 +1,4 @@
-const templateHistory: Record<number, any> = {};
+const originalBody: Record<number, any> = {};
 
 const getKey = (name?: string) => `templates_${name ?? "default"}`;
 
@@ -25,7 +25,8 @@ async function setTemplate(tab: browser.tabs.Tab) {
   }
 
   if (compose.body === undefined) return;
-  let body = compose.body.split("<body>").pop()?.split("</body>")[0] ?? "";
+  let body = originalBody[tab.id] ?? compose.body.split("<body>").pop()?.split("</body>")[0] ?? "";
+  if (originalBody[tab.id] === undefined) originalBody[tab.id] = body;
 
   if (template.length > 0) {
     if (body.indexOf(`<br><pre class="moz-`) === 0) {
@@ -36,7 +37,6 @@ async function setTemplate(tab: browser.tabs.Tab) {
   }
 
   browser.compose.setComposeDetails(tab.id, { body });
-  templateHistory[tab.id] = template;
 }
 
 browser.tabs.onCreated.addListener(async (tab) => {
